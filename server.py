@@ -1,7 +1,6 @@
 import os
 import json
-import smtplib
-from email.mime.text import MIMEText
+import requests
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, send, join_room, emit
 
@@ -9,10 +8,19 @@ app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
-# Email
-EMAIL_FROM = "HABaccount@yandex.ru"
-EMAIL_PASSWORD = "ypuoaanotpezzebu"
-EMAIL_TO = "HABaccount@yandex.ru"
+# Telegram
+TG_TOKEN = "8740693953:AAEhjvmXBnU_afFiJmDAvzqJ87ABJeKVCNA"
+TG_CHAT_ID = "6789836295"
+
+def send_tg(msg):
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
+            json={"chat_id": TG_CHAT_ID, "text": msg},
+            timeout=5
+        )
+    except:
+        pass
 
 DATA_FILE = 'data.json'
 
@@ -31,19 +39,6 @@ data = load_data()
 pending_users = data['pending']
 approved_users = data['approved']
 banned_users = data['banned']
-
-def send_email(subject, body):
-    try:
-        msg = MIMEText(body)
-        msg['Subject'] = subject
-        msg['From'] = EMAIL_FROM
-        msg['To'] = EMAIL_TO
-        server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
-        server.login(EMAIL_FROM, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
-        server.quit()
-    except Exception as e:
-        print('Email error:', str(e))
 
 rooms = {
     'Общая': '',
@@ -79,7 +74,7 @@ def handle_join(data):
         if name not in pending_users:
             pending_users.append(name)
             save_data()
-            send_email('ХАБ: Новая заявка', f'Пользователь {name} ожидает одобрения.')
+            send_tg(f'ХАБ: {name} ожидает одобрения.')
         emit('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
         return
     
