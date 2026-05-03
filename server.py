@@ -56,6 +56,15 @@ history = {}
 def index():
     return send_from_directory('.', 'index.html')
 
+@socketio.on('admin_unban')
+def handle_unban(data):
+    name = data.get('name', '')
+    if name in banned_users:
+        banned_users.remove(name)
+        approved_users.append(name)
+        save_data()
+        emit('message', {'type': 'system', 'text': f'{name} разбанен.'}, broadcast=True)
+        
 @socketio.on('join')
 def handle_join(data):
     room = data.get('room', 'Общая')
