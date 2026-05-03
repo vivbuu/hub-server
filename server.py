@@ -75,7 +75,7 @@ def handle_join(data):
             pending_users.append(name)
             save_data()
             send_tg(f'ХАБ: {name} ожидает одобрения.')
-        emit('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
+        send('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
         return
     
     join_room(room)
@@ -116,7 +116,7 @@ def handle_approve(data):
         pending_users.remove(name)
         approved_users.append(name)
         save_data()
-        emit('message', {'type': 'system', 'text': f'{name} одобрен!'})
+               emit('message', {'type': 'system', 'text': f'{name} одобрен!'}, broadcast=True)
 
 @socketio.on('admin_ban')
 def handle_ban(data):
