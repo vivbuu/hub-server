@@ -1,11 +1,32 @@
 import os
 import json
-from flask import Flask, send_from_directory
+import smtplib
+from email.mime.text import MIMEText
+from flask import Flask, send_from_directory, request
 from flask_socketio import SocketIO, send, join_room, emit
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+
+# Email настройки
+EMAIL_FROM = "HABaccount@yandex.ru"
+EMAIL_PASSWORD = "ypuoaanotpezzebu"
+EMAIL_TO = "HABaccount@yandex.ru"
+
+def send_email(subject, body):
+    try:
+        msg = MIMEText(body)
+        msg['Subject'] = subject
+        msg['From'] = EMAIL_FROM
+        msg['To'] = EMAIL_TO
+        
+        server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
+        server.login(EMAIL_FROM, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
+        server.quit()
+    except Exception as e:
+        print('Email error:', str(e))
 
 rooms = {
     'Общая': '',
@@ -14,14 +35,13 @@ rooms = {
 }
 
 history = {}
-pending_users = []   # ждут одобрения
-approved_users = []  # одобрены
-banned_users = []    # забанены
+pending_users = []
+approved_users = []
+banned_users = []
 
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
-
 
 @socketio.on('join')
 def handle_join(data):
@@ -38,13 +58,14 @@ def handle_join(data):
         return
     
     if rooms[room] != '' and rooms[room] != password:
-        emit('message', {'type': 'system', 'text': f'Неверный пароль для комнаты "{room}"'})
+        emit('message', {'type': 'system', 'text': f'Неверный пароль'})
         return
     
     if name not in approved_users:
         if name not in pending_users:
             pending_users.append(name)
-        emit('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте это окно, ожидайте.'})
+            send_email('ХАБ: Новая заявка', f'Пользователь {name} ожидает одобрения в чате.')
+        emit('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
         return
     
     join_room(room)
@@ -60,9 +81,7 @@ def handle_message(msg):
     room = msg.get('room', 'Общая')
     nick = msg.get('nick', '')
     
-    # Забаненные не могут писать
     if nick in banned_users:
-        emit('message', {'type': 'system', 'text': 'Вы забанены.'})
         return
     
     if room not in history:
@@ -80,14 +99,13 @@ def handle_clear(data):
         history[room] = []
     emit('message', {'type': 'system', 'text': 'Чат очищен'}, to=room)
 
-# Админ-команды
 @socketio.on('admin_approve')
 def handle_approve(data):
     name = data.get('name', '')
     if name in pending_users:
         pending_users.remove(name)
         approved_users.append(name)
-        emit('message', {'type': 'system', 'text': 'Вы прошли проверку! Перезайдите, не меняя юзернейма.'}, room=request.sid)
+        emit('message', {'type': 'system', 'text': f'{name} одобрен!'})
 
 @socketio.on('admin_ban')
 def handle_ban(data):
