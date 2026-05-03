@@ -40,6 +40,8 @@ pending_users = data['pending']
 approved_users = data['approved']
 banned_users = data['banned']
 
+
+
 rooms = {
     'Общая': '',
     'С паролем': '123',
@@ -59,23 +61,24 @@ def handle_join(data):
     name = data.get('name', 'Гость')
     
     if name in banned_users:
-        emit('message', {'type': 'system', 'text': 'Вы забанены.'})
+        send({'type': 'system', 'text': 'Вы забанены.'})
         return
     
     if room not in rooms:
-        emit('message', {'type': 'system', 'text': f'Комната "{room}" не существует'})
+        send({'type': 'system', 'text': f'Комната "{room}" не существует'})
         return
     
-    if rooms[room] != '' and rooms[room] != password:
-        emit('message', {'type': 'system', 'text': f'Неверный пароль'})
-        return
-    
+    # Сначала модерация
     if name not in approved_users:
         if name not in pending_users:
             pending_users.append(name)
             save_data()
-            send_tg(f'ХАБ: {name} ожидает одобрения.')
-        send('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
+        send({'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
+        return
+    
+    # Потом пароль
+    if rooms[room] != '' and rooms[room] != password:
+        send({'type': 'system', 'text': f'Неверный пароль'})
         return
     
     join_room(room)
@@ -85,7 +88,7 @@ def handle_join(data):
             emit('message', msg)
     
     emit('message', {'type': 'system', 'text': f'{name} вошёл в комнату "{room}"'}, to=room)
-
+    
 @socketio.on('message')
 def handle_message(msg):
     room = msg.get('room', 'Общая')
