@@ -2,17 +2,35 @@ import os
 import json
 import smtplib
 from email.mime.text import MIMEText
-from flask import Flask, send_from_directory, request
+from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, send, join_room, emit
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
-# Email настройки
+# Email
 EMAIL_FROM = "HABaccount@yandex.ru"
 EMAIL_PASSWORD = "ypuoaanotpezzebu"
 EMAIL_TO = "HABaccount@yandex.ru"
+
+DATA_FILE = 'data.json'
+
+def load_data():
+    try:
+        with open(DATA_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {'pending': [], 'approved': [], 'banned': []}
+
+def save_data():
+    with open(DATA_FILE, 'w') as f:
+        json.dump({'pending': pending_users, 'approved': approved_users, 'banned': banned_users}, f)
+
+data = load_data()
+pending_users = data['pending']
+approved_users = data['approved']
+banned_users = data['banned']
 
 def send_email(subject, body):
     try:
@@ -20,7 +38,6 @@ def send_email(subject, body):
         msg['Subject'] = subject
         msg['From'] = EMAIL_FROM
         msg['To'] = EMAIL_TO
-        
         server = smtplib.SMTP_SSL('smtp.yandex.ru', 465)
         server.login(EMAIL_FROM, EMAIL_PASSWORD)
         server.sendmail(EMAIL_FROM, EMAIL_TO, msg.as_string())
@@ -35,9 +52,6 @@ rooms = {
 }
 
 history = {}
-pending_users = []
-approved_users = []
-banned_users = []
 
 @app.route('/')
 def index():
@@ -64,7 +78,8 @@ def handle_join(data):
     if name not in approved_users:
         if name not in pending_users:
             pending_users.append(name)
-            send_email('ХАБ: Новая заявка', f'Пользователь {name} ожидает одобрения в чате.')
+            save_data()
+            send_email('ХАБ: Новая заявка', f'Пользователь {name} ожидает одобрения.')
         emit('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте окно, ожидайте.'})
         return
     
@@ -105,6 +120,7 @@ def handle_approve(data):
     if name in pending_users:
         pending_users.remove(name)
         approved_users.append(name)
+        save_data()
         emit('message', {'type': 'system', 'text': f'{name} одобрен!'})
 
 @socketio.on('admin_ban')
@@ -116,6 +132,7 @@ def handle_ban(data):
         approved_users.remove(name)
     if name in pending_users:
         pending_users.remove(name)
+    save_data()
     emit('message', {'type': 'system', 'text': f'{name} забанен.'}, broadcast=True)
 
 @socketio.on('get_lists')
