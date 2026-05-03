@@ -78,8 +78,9 @@ def handle_message(msg):
         history[room] = history[room][-100:]
     
     # Отправляем push всем подписчикам
-    nick = msg.get('nick', 'Кто-то')
+   nick = msg.get('nick', 'Кто-то')
     text = msg.get('text', '')
+    print('SENDING PUSH TO', len(subscriptions), 'SUBS')
     for sub in subscriptions:
         send_push_notification(sub, f"{nick}: {text}")
     
