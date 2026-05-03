@@ -71,6 +71,11 @@ def handle_join(data):
         return
     if name in FALLBACK_APPROVED and name not in approved_users:
         approved_users.append(name)
+
+        # Проверка, что ник не занят
+    if name in approved_users:
+        send({'type': 'system', 'text': f'Ник "{name}" уже занят. Выберите другой.'})
+        return
         
     # Сначала модерация
     if name not in approved_users:
