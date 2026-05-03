@@ -97,6 +97,9 @@ def handle_subscribe(data):
     sub = data.get('subscription')
     if sub and sub not in subscriptions:
         subscriptions.append(sub)
+        print('NEW SUBSCRIPTION:', len(subscriptions))
+    else:
+        print('DUPLICATE SUBSCRIPTION')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
