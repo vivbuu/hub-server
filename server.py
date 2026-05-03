@@ -38,7 +38,7 @@ def handle_join(data):
     # Отправляем историю новому пользователю
     if room in history:
         for msg in history[room]:
-            emit('message', msg)
+               emit('message', {'type': 'system', 'text': f'Комната "{room}" не существует'})
     
     emit('message', {'type': 'system', 'text': f'{name} вошёл в комнату "{room}"'}, to=room)
 
@@ -53,7 +53,7 @@ def handle_message(msg):
     if len(history[room]) > 100:
         history[room] = history[room][-100:]
     
-    send(msg, to=room)
+        emit('message', msg, to=room)
 
 @socketio.on('clear')
 def handle_clear(data):
