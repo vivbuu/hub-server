@@ -22,18 +22,17 @@ banned_users = []    # забанены
 def index():
     return send_from_directory('.', 'index.html')
 
+
 @socketio.on('join')
 def handle_join(data):
     room = data.get('room', 'Общая')
     password = data.get('password', '').strip()
     name = data.get('name', 'Гость')
     
-    # Проверка бана
     if name in banned_users:
         emit('message', {'type': 'system', 'text': 'Вы забанены.'})
         return
     
-    # Проверка комнаты и пароля
     if room not in rooms:
         emit('message', {'type': 'system', 'text': f'Комната "{room}" не существует'})
         return
@@ -42,14 +41,12 @@ def handle_join(data):
         emit('message', {'type': 'system', 'text': f'Неверный пароль для комнаты "{room}"'})
         return
     
-    # Проверка одобрения
     if name not in approved_users:
         if name not in pending_users:
             pending_users.append(name)
-        emit('message', {'type': 'system', 'text': f'{name}, ожидайте одобрения администратором.'})
+        emit('message', {'type': 'system', 'text': f'{name}, вы на модерации. Не покидайте это окно, ожидайте.'})
         return
     
-    # Всё ок — пускаем
     join_room(room)
     
     if room in history:
@@ -90,8 +87,7 @@ def handle_approve(data):
     if name in pending_users:
         pending_users.remove(name)
         approved_users.append(name)
-        # Отправляем только админу, не всем!
-        emit('message', {'type': 'system', 'text': f'{name} одобрен!'})
+        emit('message', {'type': 'system', 'text': 'Вы прошли проверку! Перезайдите, не меняя юзернейма.'}, room=request.sid)
 
 @socketio.on('admin_ban')
 def handle_ban(data):
