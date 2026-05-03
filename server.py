@@ -40,6 +40,8 @@ pending_users = data['pending']
 approved_users = data['approved']
 banned_users = data['banned']
 
+FALLBACK_APPROVED = ['vivbu', 'viva', 'zeti', 'ars']
+
 
 
 rooms = {
