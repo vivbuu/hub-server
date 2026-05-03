@@ -69,7 +69,9 @@ def handle_join(data):
     if room not in rooms:
         send({'type': 'system', 'text': f'Комната "{room}" не существует'})
         return
-    
+    if name in FALLBACK_APPROVED and name not in approved_users:
+        approved_users.append(name)
+        
     # Сначала модерация
     if name not in approved_users:
         if name not in pending_users:
