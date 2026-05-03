@@ -6,6 +6,7 @@ app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
+
 rooms = {
     'Общая': '',
     'С паролем': '123',
