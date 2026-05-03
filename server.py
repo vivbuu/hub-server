@@ -90,7 +90,8 @@ def handle_approve(data):
     if name in pending_users:
         pending_users.remove(name)
         approved_users.append(name)
-        emit('message', {'type': 'system', 'text': f'{name} одобрен!'}, broadcast=True)
+        # Отправляем только админу, не всем!
+        emit('message', {'type': 'system', 'text': f'{name} одобрен!'})
 
 @socketio.on('admin_ban')
 def handle_ban(data):
