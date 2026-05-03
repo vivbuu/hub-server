@@ -128,7 +128,7 @@ def handle_approve(data):
         pending_users.remove(name)
         approved_users.append(name)
         save_data()
-        emit('message', {'type': 'system', 'text': f'{name} одобрен!'}, broadcast=True)
+        emit('message', {'type': 'system', 'text': f'{name} одобрен! Перезайди в чат'}, broadcast=True)
 
 @socketio.on('admin_ban')
 def handle_ban(data):
