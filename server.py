@@ -1,10 +1,23 @@
 import os
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, send, join_room, emit
+import json
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+
+# VAPID ключи
+VAPID_PRIVATE = """-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgTSZ4sDXvhXhsL8qk
+VjdylUlT8vUAdfGqmhAZG3S1JA6hRANCAATwqzYyWeDrtljTq1W9Ew0vxyCSEwXq
+L51pUdupjTWx7auUzZWGJVNGUAe/o7BOBIIIflULH9LAxzKeFmCl2h/X
+-----END PRIVATE KEY-----"""
+
+VAPID_PUBLIC = """-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8Ks2Mlng67ZY06tVvRMNL8cgkhMF
+6i+daVHbqY01se2rlM2VhiVTRlAHv6OwTgSCCH5VCx/SwMcynhZgpdof1w==
+-----END PUBLIC KEY-----"""
 
 rooms = {
     'Общая': '',
@@ -13,6 +26,7 @@ rooms = {
 }
 
 history = {}
+subscriptions = []
 
 @app.route('/')
 def index():
@@ -58,6 +72,12 @@ def handle_clear(data):
     if room in history:
         history[room] = []
     emit('message', {'type': 'system', 'text': 'Чат очищен'}, to=room)
+
+@socketio.on('subscribe')
+def handle_subscribe(data):
+    sub = data.get('subscription')
+    if sub and sub not in subscriptions:
+        subscriptions.append(sub)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
