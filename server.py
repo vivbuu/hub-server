@@ -36,10 +36,11 @@ def send_push_notification(sub, message):
             subscription_info=sub,
             data=json.dumps({"title": "ХАБ", "body": message}),
             vapid_private_key=VAPID_PRIVATE,
-            vapid_claims=VAPID_CLAIMS
+            vapid_claims=VAPID_CLAIMS,
+            timeout=5
         )
-    except Exception:
-        pass
+    except Exception as e:
+        print('PUSH ERROR:', str(e))
 
 @app.route('/')
 def index():
