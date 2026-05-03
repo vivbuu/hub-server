@@ -80,6 +80,7 @@ def handle_join(data):
         return
     if name in FALLBACK_APPROVED and name not in approved_users:
         approved_users.append(name)
+        save_data()
 
         # Проверка, что ник не занят
     # if name in approved_users:
