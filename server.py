@@ -1,13 +1,13 @@
 import os
+import json
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, send, join_room, emit
-import json
+from pywebpush import webpush, WebPushException
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
-# VAPID ключи
 VAPID_PRIVATE = """-----BEGIN PRIVATE KEY-----
 MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgTSZ4sDXvhXhsL8qk
 VjdylUlT8vUAdfGqmhAZG3S1JA6hRANCAATwqzYyWeDrtljTq1W9Ew0vxyCSEwXq
@@ -19,6 +19,8 @@ MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8Ks2Mlng67ZY06tVvRMNL8cgkhMF
 6i+daVHbqY01se2rlM2VhiVTRlAHv6OwTgSCCH5VCx/SwMcynhZgpdof1w==
 -----END PUBLIC KEY-----"""
 
+VAPID_CLAIMS = {"sub": "mailto:admin@hab.local"}
+
 rooms = {
     'Общая': '',
     'С паролем': '123',
@@ -27,6 +29,17 @@ rooms = {
 
 history = {}
 subscriptions = []
+
+def send_push_notification(sub, message):
+    try:
+        webpush(
+            subscription_info=sub,
+            data=json.dumps({"title": "ХАБ", "body": message}),
+            vapid_private_key=VAPID_PRIVATE,
+            vapid_claims=VAPID_CLAIMS
+        )
+    except Exception:
+        pass
 
 @app.route('/')
 def index():
@@ -63,6 +76,12 @@ def handle_message(msg):
     history[room].append(msg)
     if len(history[room]) > 100:
         history[room] = history[room][-100:]
+    
+    # Отправляем push всем подписчикам
+    nick = msg.get('nick', 'Кто-то')
+    text = msg.get('text', '')
+    for sub in subscriptions:
+        send_push_notification(sub, f"{nick}: {text}")
     
     send(msg, to=room)
 
