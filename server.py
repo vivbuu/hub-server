@@ -186,26 +186,6 @@ def handle_approve(data):
         # Отправляем ТОЛЬКО тому, кого одобрили
         emit('message', {'type': 'system', 'text': 'Вы прошли модерацию! Перезайдите, не меняя ник.'})
 
-socket.on('pending_tracks', function(tracks) {
-    let list = document.getElementById('moderationList');
-    if (tracks.length === 0) {
-        list.innerHTML = '<p style="color:var(--text2);">Нет треков на модерации.</p>';
-        return;
-    }
-    list.innerHTML = '';
-    tracks.forEach((track, i) => {
-        list.innerHTML += `
-            <div class="card">
-                <div style="font-weight:bold;">${track.name}</div>
-                <div style="font-size:14px; color:var(--text2);">От: ${track.from}</div>
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <button onclick="socket.emit('approve_track_server', {name:'${track.name}'}); setTimeout(loadModeration,500)">Одобрить</button>
-                    <button onclick="socket.emit('reject_track_server', {name:'${track.name}'}); setTimeout(loadModeration,500)" style="background:var(--danger);">Отклонить</button>
-                </div>
-            </div>
-        `;
-    });
-});
 
 @socketio.on('admin_ban')
 def handle_ban(data):
