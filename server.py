@@ -133,13 +133,13 @@ def handle_ping():
 @app.route('/upload_track', methods=['POST'])
 def upload_track():
     global pending_tracks
-    data = request.get_json()
+    data = request.get_json(force=True, silent=True) or {}
     track = data.get('track', {})
-    if track:
-        pending_tracks.append(track)
-        save_data()
-        return {'ok': True, 'name': track.get('name', '')}
-    return {'ok': False}
+    if not track:
+        track = {'name': data.get('name','test'), 'from': data.get('from',''), 'size': '0', 'base64': ''}
+    pending_tracks.append(track)
+    save_data()
+    return {'ok': True, 'name': track.get('name','')}
 
 @app.route('/')
 def index():
