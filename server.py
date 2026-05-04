@@ -40,6 +40,7 @@ def load_data():
         return {'pending': [], 'approved': [], 'banned': [], 'pending_tracks': [], 'approved_tracks': []}
 
 def save_data():
+    global pending_users, approved_users, banned_users, pending_tracks, approved_tracks
     with open(DATA_FILE, 'w') as f:
         json.dump({
             'pending': pending_users,
@@ -70,6 +71,7 @@ history = {}
 
 @socketio.on('submit_track')
 def handle_submit_track(data):
+    global pending_tracks
     track = data.get('track')
     if track:
         pending_tracks.append(track)
