@@ -1,5 +1,6 @@
 flask
 flask-socketio
+flask-cors
 gunicorn
 simple-websocket
 gevent
