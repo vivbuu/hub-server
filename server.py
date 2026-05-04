@@ -24,6 +24,7 @@ def send_tg(msg):
 
 DATA_FILE = 'data.json'
 
+
 def load_data():
     try:
         with open(DATA_FILE, 'r') as f:
@@ -41,8 +42,8 @@ def load_data():
 def save_data():
     with open(DATA_FILE, 'w') as f:
         json.dump({
-            'pending': pending_users, 
-            'approved': approved_users, 
+            'pending': pending_users,
+            'approved': approved_users,
             'banned': banned_users,
             'pending_tracks': pending_tracks,
             'approved_tracks': approved_tracks
@@ -52,6 +53,8 @@ data = load_data()
 pending_users = data['pending']
 approved_users = data['approved']
 banned_users = data['banned']
+pending_tracks = data['pending_tracks']
+approved_tracks = data['approved_tracks']
 
 FALLBACK_APPROVED = ['vivbu', 'viva', 'zeti', 'ars', 'арс', 'Тимур', 'ZT', 'ГУСЕВ_КОРОЛЬ_МИРА']
 
