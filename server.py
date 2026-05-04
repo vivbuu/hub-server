@@ -136,7 +136,10 @@ def handle_ping():
 @app.route('/upload_track', methods=['POST'])
 def upload_track():
     global pending_tracks
-    data = request.get_json(force=True, silent=True) or {}
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+    except:
+        data = {}
     track = data.get('track', {})
     if not track:
         track = {'name': data.get('name','test'), 'from': data.get('from',''), 'size': '0', 'base64': ''}
