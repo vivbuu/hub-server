@@ -130,6 +130,17 @@ def handle_get_approved_tracks():
 def handle_ping():
     emit('pong_test', {'msg': 'Сервер отвечает!'})
 
+@app.route('/upload_track', methods=['POST'])
+def upload_track():
+    global pending_tracks
+    data = request.get_json()
+    track = data.get('track', {})
+    if track:
+        pending_tracks.append(track)
+        save_data()
+        return {'ok': True, 'name': track.get('name', '')}
+    return {'ok': False}
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
