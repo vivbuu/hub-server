@@ -1,1 +1,1 @@
-web: gunicorn -k gthread -w 1 server:app
+web: gunicorn -k eventlet -w 1 server:app
