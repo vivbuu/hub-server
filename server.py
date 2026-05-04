@@ -72,18 +72,17 @@ history = {}
 @socketio.on('submit_track')
 def handle_submit_track(data):
     global pending_tracks
-    if data is None:
-        data = {}
-    name = data.get('name', 'неизвестно')
-    track = {
-        'name': name,
-        'from': data.get('from', ''),
-        'size': data.get('size', ''),
-        'base64': data.get('base64', '')
-    }
+    track = data.get('track', {})
+    if not track:
+        track = {
+            'name': data.get('name', 'неизвестно'),
+            'from': data.get('from', ''),
+            'size': data.get('size', ''),
+            'base64': data.get('base64', '')
+        }
     pending_tracks.append(track)
     save_data()
-    emit('track_submitted', {'success': True, 'name': name})
+    emit('track_submitted', {'success': True, 'name': track.get('name', '')})
     
 @socketio.on('get_track_file')
 def handle_get_track_file(data):
