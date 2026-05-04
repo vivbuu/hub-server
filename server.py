@@ -27,14 +27,27 @@ DATA_FILE = 'data.json'
 def load_data():
     try:
         with open(DATA_FILE, 'r') as f:
-            return json.load(f)
+            data = json.load(f)
+            return {
+                'pending': data.get('pending', []),
+                'approved': data.get('approved', []),
+                'banned': data.get('banned', []),
+                'pending_tracks': data.get('pending_tracks', []),
+                'approved_tracks': data.get('approved_tracks', [])
+            }
     except:
-        return {'pending': [], 'approved': [], 'banned': []}
+        return {'pending': [], 'approved': [], 'banned': [], 'pending_tracks': [], 'approved_tracks': []}
 
 def save_data():
     with open(DATA_FILE, 'w') as f:
-        json.dump({'pending': pending_users, 'approved': approved_users, 'banned': banned_users}, f)
-
+        json.dump({
+            'pending': pending_users, 
+            'approved': approved_users, 
+            'banned': banned_users,
+            'pending_tracks': pending_tracks,
+            'approved_tracks': approved_tracks
+        }, f)
+        
 data = load_data()
 pending_users = data['pending']
 approved_users = data['approved']
