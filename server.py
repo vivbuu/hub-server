@@ -3,10 +3,11 @@ import json
 import requests
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO, send, join_room, emit
+from flask_cors import CORS
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
-from flask_cors import CORS
+
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
