@@ -82,7 +82,7 @@ def handle_submit_track(data):
         }
     pending_tracks.append(track)
     save_data()
-    emit('track_submitted', {'success': True, 'name': track.get('name', '')})
+    return {'ok': True, 'name': track.get('name','')}
     
 @socketio.on('get_track_file')
 def handle_get_track_file(data):
