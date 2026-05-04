@@ -2,5 +2,5 @@ flask
 flask-socketio
 gunicorn
 simple-websocket
-eventlet
-pywebpush
+gevent
+requests
