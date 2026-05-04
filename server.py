@@ -68,10 +68,6 @@ rooms = {
 
 history = {}
 
-# После history = {}
-pending_tracks = []
-approved_tracks = []
-
 @socketio.on('submit_track')
 def handle_submit_track(data):
     track = data.get('track')
