@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request
 from flask_socketio import SocketIO, send, join_room, emit
 from flask_cors import CORS
 
