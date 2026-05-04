@@ -137,8 +137,11 @@ def handle_approve(data):
     if name in pending_users:
         pending_users.remove(name)
         approved_users.append(name)
+        # Добавляем в FALLBACK
+        if name not in FALLBACK_APPROVED:
+            FALLBACK_APPROVED.append(name)
         save_data()
-        emit('message', {'type': 'system', 'text': f'{name} одобрен! Перезайди в чат'}, broadcast=True)
+        emit('message', {'type': 'system', 'text': f'{name} одобрен!'})
 
 @socketio.on('admin_ban')
 def handle_ban(data):
@@ -154,9 +157,10 @@ def handle_ban(data):
 
 @socketio.on('get_lists')
 def handle_get_lists():
+    all_approved = list(set(approved_users + FALLBACK_APPROVED))
     emit('admin_lists', {
         'pending': pending_users,
-        'approved': approved_users,
+        'approved': all_approved,
         'banned': banned_users
     })
 
