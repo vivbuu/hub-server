@@ -77,6 +77,14 @@ def handle_submit_track(data):
         save_data()
         send_tg(f'ХАБ: новый трек {track["name"]} на модерации.')
 
+@socketio.on('get_track_file')
+def handle_get_track_file(data):
+    name = data.get('name')
+    for t in pending_tracks:
+        if t['name'] == name:
+            emit('track_file', {'name': name, 'base64': t.get('base64', '')})
+            break
+            
 @socketio.on('get_pending_tracks')
 def handle_get_pending_tracks():
     emit('pending_tracks', pending_tracks)
