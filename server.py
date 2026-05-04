@@ -72,10 +72,10 @@ approved_tracks = []
 @socketio.on('submit_track')
 def handle_submit_track(data):
     track = data.get('track')
-    if track and track not in pending_tracks:
+    if track:
         pending_tracks.append(track)
         save_data()
-        send_tg(f'ХАБ: новый трек {track["name"]} на модерации.')
+        emit('pending_tracks', pending_tracks, broadcast=True)
 
 @socketio.on('get_track_file')
 def handle_get_track_file(data):
