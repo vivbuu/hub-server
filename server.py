@@ -122,6 +122,10 @@ def handle_reject_track(data):
 def handle_get_approved_tracks():
     emit('approved_tracks', approved_tracks)
 
+@socketio.on('ping_test')
+def handle_ping():
+    emit('pong_test', {'msg': 'Сервер отвечает!'})
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
