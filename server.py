@@ -61,10 +61,13 @@ def handle_unban(data):
     name = data.get('name', '')
     if name in banned_users:
         banned_users.remove(name)
+    if name not in approved_users:
         approved_users.append(name)
-        save_data()
-        emit('message', {'type': 'system', 'text': f'{name} разбанен.'}, broadcast=True)
-        
+    if name not in FALLBACK_APPROVED:
+        FALLBACK_APPROVED.append(name)
+    save_data()
+    emit('message', {'type': 'system', 'text': f'{name} разбанен.'}, broadcast=True)
+
 @socketio.on('join')
 def handle_join(data):
     room = data.get('room', 'Общая')
@@ -152,9 +155,12 @@ def handle_ban(data):
         approved_users.remove(name)
     if name in pending_users:
         pending_users.remove(name)
+    # Удаляем из FALLBACK
+    if name in FALLBACK_APPROVED:
+        FALLBACK_APPROVED.remove(name)
     save_data()
     emit('message', {'type': 'system', 'text': f'{name} забанен.'}, broadcast=True)
-
+    
 @socketio.on('get_lists')
 def handle_get_lists():
     all_approved = list(set(approved_users + FALLBACK_APPROVED))
