@@ -74,7 +74,7 @@ def handle_submit_track(data):
     if track:
         pending_tracks.append(track)
         save_data()
-        emit('pending_tracks', pending_tracks, broadcast=True)
+        emit('track_submitted', {'success': True, 'name': track['name']})
 
 @socketio.on('get_track_file')
 def handle_get_track_file(data):
