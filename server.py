@@ -80,6 +80,8 @@ def handle_submit_track(data):
 @socketio.on('get_track_file')
 def handle_get_track_file(data):
     name = data.get('name')
+    print('Requested file:', name)
+    print('Pending tracks:', pending_tracks)
     for t in pending_tracks:
         if t['name'] == name:
             emit('track_file', {'name': name, 'base64': t.get('base64', '')})
