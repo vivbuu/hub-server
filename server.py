@@ -52,6 +52,46 @@ rooms = {
 
 history = {}
 
+# После history = {}
+pending_tracks = []
+approved_tracks = []
+
+@socketio.on('submit_track')
+def handle_submit_track(data):
+    track = data.get('track')
+    if track and track not in pending_tracks:
+        pending_tracks.append(track)
+        save_data()
+        send_tg(f'ХАБ: новый трек {track["name"]} на модерации.')
+
+@socketio.on('get_pending_tracks')
+def handle_get_pending_tracks():
+    emit('pending_tracks', pending_tracks)
+
+@socketio.on('approve_track_server')
+def handle_approve_track(data):
+    name = data.get('name')
+    for t in pending_tracks:
+        if t['name'] == name:
+            pending_tracks.remove(t)
+            approved_tracks.append(t)
+            save_data()
+            emit('message', {'type': 'system', 'text': f'Трек {name} одобрен!'}, broadcast=True)
+            break
+
+@socketio.on('reject_track_server')
+def handle_reject_track(data):
+    name = data.get('name')
+    for t in pending_tracks:
+        if t['name'] == name:
+            pending_tracks.remove(t)
+            save_data()
+            break
+
+@socketio.on('get_approved_tracks')
+def handle_get_approved_tracks():
+    emit('approved_tracks', approved_tracks)
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
