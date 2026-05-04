@@ -71,7 +71,6 @@ history = {}
 
 @socketio.on('submit_track')
 def handle_submit_track(data):
-    emit('track_submitted', {'success': True, 'name': 'test'})
     global pending_tracks
     track = data.get('track')
     if track:
