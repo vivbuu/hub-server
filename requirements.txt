@@ -2,6 +2,6 @@ flask
 flask-socketio
 flask-cors
 gunicorn
+eventlet
 simple-websocket
 requests
-eventlet
