@@ -159,7 +159,7 @@ def upload_file():
         if nick in banned_users:
             return {'ok': False, 'error': 'banned'}
         room = file_data.get('room', 'Общая')
-        emit('chat_file', file_data, to=room)
+        socketio.emit('chat_file', file_data, to=room)
         return {'ok': True}
     return {'ok': False}
 
