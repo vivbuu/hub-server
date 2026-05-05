@@ -147,6 +147,22 @@ def upload_track():
     save_data()
     return {'ok': True, 'name': track.get('name','')}
 
+@app.route('/upload_file', methods=['POST'])
+def upload_file():
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+    except:
+        data = {}
+    file_data = data.get('file', {})
+    if file_data:
+        nick = file_data.get('nick', '')
+        if nick in banned_users:
+            return {'ok': False, 'error': 'banned'}
+        room = file_data.get('room', 'Общая')
+        emit('chat_file', file_data, to=room)
+        return {'ok': True}
+    return {'ok': False}
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
