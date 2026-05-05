@@ -4,4 +4,4 @@ flask-cors
 gunicorn
 simple-websocket
 requests
-eventlet
+gevent
