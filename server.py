@@ -159,6 +159,14 @@ def upload_file():
         if nick in banned_users:
             return {'ok': False, 'error': 'banned'}
         room = file_data.get('room', 'Общая')
+        
+        # Сохраняем в историю как сообщение
+        if room not in history:
+            history[room] = []
+        history[room].append({'type': 'file', 'file': file_data})
+        if len(history[room]) > 100:
+            history[room] = history[room][-100:]
+        
         socketio.emit('chat_file', file_data, to=room)
         return {'ok': True}
     return {'ok': False}
@@ -219,6 +227,13 @@ def handle_join(data):
     if room in history:
         for msg in history[room]:
             emit('message', msg)
+            
+    if room in history:
+        for msg in history[room]:
+            if msg.get('type') == 'file':
+                emit('chat_file', msg['file'])
+            else:
+                emit('message', msg)
     
     emit('message', {'type': 'system', 'text': f'{name} вошёл в комнату "{room}"'}, to=room)
     
