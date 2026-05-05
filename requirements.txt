@@ -1,7 +1,1 @@
-flask
-flask-socketio
-flask-cors
-gunicorn
-eventlet
-simple-websocket
-requests
+web: gunicorn --threads 4 -w 1 server:app
