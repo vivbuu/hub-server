@@ -1,1 +1,6 @@
-web: gunicorn --threads 4 -w 1 server:app
+flask
+flask-socketio
+flask-cors
+gunicorn
+simple-websocket
+requests
