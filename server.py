@@ -37,11 +37,12 @@ def load_data():
                 'approved': data.get('approved', []),
                 'banned': data.get('banned', []),
                 'pending_tracks': data.get('pending_tracks', []),
-                'approved_tracks': data.get('approved_tracks', [])
+                'approved_tracks': data.get('approved_tracks', []),
+                'history': data.get('history', {})
             }
     except:
-        return {'pending': [], 'approved': [], 'banned': [], 'pending_tracks': [], 'approved_tracks': []}
-
+        return {'pending': [], 'approved': [], 'banned': [], 'pending_tracks': [], 'approved_tracks': [], 'history': {}}
+        
 def save_data():
     global pending_users, approved_users, banned_users, pending_tracks, approved_tracks
     with open(DATA_FILE, 'w') as f:
@@ -50,10 +51,12 @@ def save_data():
             'approved': approved_users,
             'banned': banned_users,
             'pending_tracks': pending_tracks,
-            'approved_tracks': approved_tracks
+            'approved_tracks': approved_tracks,
+            'history': history
         }, f)
         
 data = load_data()
+history = data['history']
 pending_users = data['pending']
 approved_users = data['approved']
 banned_users = data['banned']
