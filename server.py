@@ -171,9 +171,14 @@ def upload_file():
         return {'ok': True}
     return {'ok': False}
 
+MAINTENANCE_MODE = 0
+
 @app.route('/')
 def index():
+    if MAINTENANCE_MODE == 1:
+        return '<h1 style="text-align:center;margin-top:100px;font-family:sans-serif;">На сайте ведутся работы.<br>Заходите позже.</h1>'
     return send_from_directory('.', 'index.html')
+
 
 @socketio.on('admin_unban')
 def handle_unban(data):
